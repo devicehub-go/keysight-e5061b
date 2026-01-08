@@ -1,6 +1,7 @@
 package keysighte5061b_test
 
 import (
+	"fmt"
 	"testing"
 	"time"
 
@@ -33,24 +34,20 @@ func TestGetMeasuremnt(t *testing.T) {
 		Format: "MLOG",
 		CenterFrequency: 476e6,
 		SpanFrequency: 3e6,
-		SweepPoints: 1001,
+		SweepPoints: 101,
 		Continuos: true,
 		AutoIFBW: false,
 		IFBandwidth: 10e3,
 		AverageState: true,
 		AverageFactor: 5,
 	});
+	fmt.Println(vna.GetFrequencyParameters(1))
 
-	/*start := time.Now()
-	_, err := vna.GetComplexData(1)
+	start := time.Now()
+	data, err := vna.GetComplexData(1)
 	if err != nil {
 		panic(err)
 	}
 	fmt.Println(time.Since(start))
-
-	sweepTime, e := vna.Query(":SENS1:SWE:TIME?")
-	if e != nil {
-		panic(e)
-	}
-	fmt.Println(string(sweepTime))*/
+	fmt.Println(data.Frequency)
 }

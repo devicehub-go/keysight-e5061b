@@ -12,6 +12,7 @@ type ComplexData struct {
 	Imaginary []float64
 	Magnitude []float64
 	Phase     []float64
+	Frequency []float64
 }
 
 // Sets the data type for transfers
@@ -99,16 +100,22 @@ func (e *E5061B) GetComplexData(channel int) (ComplexData, error) {
         Imaginary: make([]float64, numPoints),
         Magnitude: make([]float64, numPoints),
         Phase:     make([]float64, numPoints),
+		Frequency: make([]float64, numPoints),
     }
 
+	params, err := e.GetFrequencyParameters(channel)
+	if err != nil {
+		return ComplexData{}, err
+	}
+
     for i := range numPoints {
-        r := values[i*2]
-        im := values[i*2+1]
+        r, im := values[i*2], values[i*2+1]
 
         output.Real[i] = r
         output.Imaginary[i] = im
         output.Magnitude[i] = 20*math.Log10(math.Sqrt(r*r + im*im))
-        output.Phase[i] = math.Atan2(im, r)
+        output.Phase[i] = math.Atan2(im, r) * (180/math.Pi)
+		output.Frequency[i] = params.Start + float64(i)*(params.Stop - params.Start) / (params.Sweep - 1)
     }
 
 	return output, nil

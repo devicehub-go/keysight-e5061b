@@ -10,6 +10,7 @@ type FrequencyParams struct {
 	Stop float64
 	Center float64
 	Span float64
+	Sweep float64
 }
 
 // Returns the current frequency parameters
@@ -32,17 +33,23 @@ func (e *E5061B) GetFrequencyParameters(channel int) (FrequencyParams, error) {
 	if err != nil {
 		return empty, err
 	}
+	sweep, err := e.Query(fmt.Sprintf(":SENS%d:SWE:POIN?", channel))
+	if err != nil {
+		return empty, err
+	}
 
 	startValue, _ := strconv.ParseFloat(string(start), 64)
 	stopValue, _ := strconv.ParseFloat(string(stop), 64)
 	centerValue, _ := strconv.ParseFloat(string(center), 64)
 	spanValue, _ := strconv.ParseFloat(string(span), 64)
+	sweepValue, _ := strconv.ParseFloat(string(sweep), 64)
 
 	return FrequencyParams{
 		Start: startValue,
 		Stop: stopValue,
 		Center: centerValue,
 		Span: spanValue,
+		Sweep: sweepValue,
 	}, nil
 }
 
