@@ -14,6 +14,12 @@ type TraceOptions struct {
 	StopFrequency float64
 	CenterFrequency float64
 	SpanFrequency float64
+	SweepPoints int
+	Continuos bool
+	AutoIFBW bool
+	IFBandwidth float64
+	AverageState bool
+	AverageFactor int
 }
 
 // Assign a channel and trace to specific window
@@ -25,7 +31,6 @@ func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
 	} else if err := e.SetTraceFormat(opt.Channel, opt.Trace, opt.Format); err != nil {
 		return err
 	}
-
 	if opt.StartFrequency != 0 && opt.StopFrequency != 0 {
 		if err := e.SetFrequencyStart(opt.Channel, opt.StartFrequency); err != nil {
 			return err;
@@ -33,7 +38,6 @@ func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
 			return err;
 		}
 	}
-
 	if opt.CenterFrequency != 0 && opt.SpanFrequency != 0 {
 		if err := e.SetFrequencyCenter(opt.Channel, opt.CenterFrequency); err != nil {
 			return err;
@@ -41,7 +45,28 @@ func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
 			return err;
 		}
 	}
-
+	if opt.SweepPoints != 0 {
+		if err := e.SetSweepPoints(opt.Channel, opt.SweepPoints); err != nil {
+			return err
+		}
+	} 
+	if opt.IFBandwidth != 0 {
+		if err := e.SetIFBandwidth(opt.Channel, opt.IFBandwidth); err != nil {
+			return err
+		}
+	}
+	if err := e.SetAutoIFBandwidth(opt.Channel, opt.AutoIFBW); err != nil {
+		return err
+	}
+	if err := e.SetAverageFactor(opt.Channel, opt.AverageFactor); err != nil {
+		return err
+	}
+	if err := e.SetAverageState(opt.Channel, opt.AverageState); err != nil {
+		return err
+	}
+	if err := e.SetContinuousState(opt.Channel, opt.Continuos); err != nil {
+		return err
+	}
 	return e.SetAutoScale(opt.Channel, opt.Trace)
 }
 

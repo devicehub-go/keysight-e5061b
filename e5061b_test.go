@@ -25,12 +25,8 @@ func TestGetMeasuremnt(t *testing.T) {
 	}
 	defer vna.Disconnect()
 
+	vna.Reset()
 	vna.SetWindowLayout("D12_34")
-	for i := range(4) {
-		vna.SetSweepPoints(i+1, 1001)
-		vna.SetContinuousState(i+1, true)
-	}
-
 	vna.SetTraceToWindow(protocol.TraceOptions{
 		Channel: 1,
 		Trace: 1,
@@ -38,6 +34,12 @@ func TestGetMeasuremnt(t *testing.T) {
 		Format: "MLOG",
 		CenterFrequency: 476e6,
 		SpanFrequency: 3e6,
+		SweepPoints: 1001,
+		Continuos: true,
+		AutoIFBW: false,
+		IFBandwidth: 10e3,
+		AverageState: true,
+		AverageFactor: 5,
 	});
 	vna.SetTraceToWindow(protocol.TraceOptions{
 		Channel: 2,
@@ -46,6 +48,12 @@ func TestGetMeasuremnt(t *testing.T) {
 		Format: "PHAS",
 		CenterFrequency: 476e6,
 		SpanFrequency: 3e6,
+		SweepPoints: 1001,
+		Continuos: true,
+		AutoIFBW: false,
+		IFBandwidth: 10e3,
+		AverageState: true,
+		AverageFactor: 5,
 	});
 
 	vna.SetTraceToWindow(protocol.TraceOptions{
@@ -55,6 +63,12 @@ func TestGetMeasuremnt(t *testing.T) {
 		Format: "MLOG",
 		CenterFrequency: 476e6,
 		SpanFrequency: 3e6,
+		SweepPoints: 1001,
+		Continuos: true,
+		AutoIFBW: false,
+		IFBandwidth: 10e3,
+		AverageState: true,
+		AverageFactor: 5,
 	});
 	vna.SetTraceToWindow(protocol.TraceOptions{
 		Channel: 4,
@@ -63,6 +77,12 @@ func TestGetMeasuremnt(t *testing.T) {
 		Format: "PHAS",
 		CenterFrequency: 476e6,
 		SpanFrequency: 3e6,
+		SweepPoints: 1001,
+		Continuos: true,
+		AutoIFBW: false,
+		IFBandwidth: 10e3,
+		AverageState: true,
+		AverageFactor: 5,
 	});
 
 
