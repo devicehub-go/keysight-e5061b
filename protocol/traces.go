@@ -45,6 +45,9 @@ func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
 			return err;
 		}
 	}
+	if err := e.SetContinuousState(opt.Channel, opt.Continuos); err != nil {
+		return err
+	}
 	if opt.SweepPoints != 0 {
 		if err := e.SetSweepPoints(opt.Channel, opt.SweepPoints); err != nil {
 			return err
@@ -62,9 +65,6 @@ func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
 		return err
 	}
 	if err := e.SetAverageState(opt.Channel, opt.AverageState); err != nil {
-		return err
-	}
-	if err := e.SetContinuousState(opt.Channel, opt.Continuos); err != nil {
 		return err
 	}
 	return e.SetAutoScale(opt.Channel, opt.Trace)

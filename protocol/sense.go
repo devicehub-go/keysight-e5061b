@@ -1,6 +1,50 @@
 package protocol
 
-import "fmt"
+import (
+	"fmt"
+	"strconv"
+)
+
+type FrequencyParams struct {
+	Start float64
+	Stop float64
+	Center float64
+	Span float64
+}
+
+// Returns the current frequency parameters
+func (e *E5061B) GetFrequencyParameters(channel int) (FrequencyParams, error) {
+	var empty FrequencyParams
+
+	start, err := e.Query(fmt.Sprintf(":SENS%d:FREQ:STAR?", channel))
+	if err != nil {
+		return empty, err
+	}
+	stop, err := e.Query(fmt.Sprintf(":SENS%d:FREQ:STOP?", channel))
+	if err != nil {
+		return empty, err
+	}
+	center, err := e.Query(fmt.Sprintf(":SENS%d:FREQ:CENT?", channel))
+	if err != nil {
+		return empty, err
+	}
+	span, err := e.Query(fmt.Sprintf(":SENS%d:FREQ:SPAN?", channel))
+	if err != nil {
+		return empty, err
+	}
+
+	startValue, _ := strconv.ParseFloat(string(start), 64)
+	stopValue, _ := strconv.ParseFloat(string(stop), 64)
+	centerValue, _ := strconv.ParseFloat(string(center), 64)
+	spanValue, _ := strconv.ParseFloat(string(span), 64)
+
+	return FrequencyParams{
+		Start: startValue,
+		Stop: stopValue,
+		Center: centerValue,
+		Span: spanValue,
+	}, nil
+}
 
 // Sets the start value of sweep range
 func (e *E5061B) SetFrequencyStart(channel int, start float64) error {
