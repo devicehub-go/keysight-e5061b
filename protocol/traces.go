@@ -5,6 +5,46 @@ import (
 	"strings"
 )
 
+type TraceOptions struct {
+	Channel int
+	Trace int
+	Parameter string
+	Format string
+	StartFrequency float64
+	StopFrequency float64
+	CenterFrequency float64
+	SpanFrequency float64
+}
+
+// Assign a channel and trace to specific window
+func (e *E5061B) SetTraceToWindow(opt TraceOptions) error {
+	if err := e.SetTraceParameter(opt.Channel, opt.Trace, opt.Parameter); err != nil {
+		return err
+	} else if err := e.SelectTrace(opt.Channel, opt.Trace); err != nil {
+		return err
+	} else if err := e.SetTraceFormat(opt.Channel, opt.Trace, opt.Format); err != nil {
+		return err
+	}
+
+	if opt.StartFrequency != 0 && opt.StopFrequency != 0 {
+		if err := e.SetFrequencyStart(opt.Channel, opt.StartFrequency); err != nil {
+			return err;
+		} else if err := e.SetFrequencyStop(opt.Channel, opt.StopFrequency); err != nil {
+			return err;
+		}
+	}
+
+	if opt.CenterFrequency != 0 && opt.SpanFrequency != 0 {
+		if err := e.SetFrequencyCenter(opt.Channel, opt.CenterFrequency); err != nil {
+			return err;
+		} else if err := e.SetFrequencySpan(opt.Channel, opt.SpanFrequency); err != nil {
+			return err;
+		}
+	}
+
+	return e.SetAutoScale(opt.Channel, opt.Trace)
+}
+
 // Sets the number of active traces on a channel
 func (e *E5061B) SetTraceCount(channel, count int) error {
 	if err := e.validateChannel(channel); err != nil {
@@ -53,6 +93,35 @@ func (e *E5061B) SetTraceFormat(channel, trace int, format string) error {
 		return err
 	}
 
-	cmd := fmt.Sprintf(":CALC%d:SEL:FORM %s", channel, strings.ToUpper(format))
+	cmd := fmt.Sprintf(":CALC%d:FORM %s", channel, strings.ToUpper(format))
+	return e.Write(cmd)
+}
+
+// Sets the smoothing state for the selected trace
+func (e *E5061B) SetSmoothingState(channel int, state bool) error {
+	if err := e.validateChannel(channel); err != nil {
+		return err
+	}
+
+	stateStr := "OFF"
+	if state {
+		stateStr = "ON"
+	}
+
+	cmd := fmt.Sprintf(":CALC%d:SEL:SMO:STAT %s", channel, stateStr)
+	return e.Write(cmd)
+}
+
+// Sets the smoothing aperture (percentage to the sweep span value)
+// for the selected channel
+func (e *E5061B) SetSmoothingAperture(channel int, aperture float64) error {
+	if err := e.validateChannel(channel); err != nil {
+		return err
+	}
+	if aperture < 0.05 || 25 < aperture {
+		return fmt.Errorf("aperture must be between 0.05 and 25, got %f", aperture)
+	}
+	
+	cmd := fmt.Sprintf(":CALC%d:SEL:SMO:APER %f", channel, aperture)
 	return e.Write(cmd)
 }

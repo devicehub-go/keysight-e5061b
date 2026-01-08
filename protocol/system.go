@@ -20,26 +20,6 @@ func (e *E5061B) SetAnalysisMode(mode string) error {
 	return e.Write(cmd)
 }
 
-// Sets the screen split configuration
-func (e *E5061B) SetWindowLayout(layout string) error {
-	if err := e.validateWindowLayout(layout); err != nil {
-		return err
-	}
-
-	cmd := fmt.Sprintf(":DISP:SPL %s", strings.ToUpper(layout))
-	return e.Write(cmd)
-}
-
-// Fits the trace data to the display window.
-func (e *E5061B) AutoScale(channel, trace int) error {
-	if err := e.SelectTrace(channel, trace); err != nil {
-		return err
-	}
-
-	cmd := fmt.Sprintf(":CALC%d:SEL:RES", channel)
-	return e.Write(cmd)
-}
-
 // Sets the trigger source (INT, EXT, MAN, BUS)
 func (e *E5061B) SetTriggerSource(source string) error {
 	if err := e.validateTriggerSource(source); err != nil {

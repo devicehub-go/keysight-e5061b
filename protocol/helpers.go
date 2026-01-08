@@ -102,7 +102,11 @@ func (e *E5061B) validateDisplayFormat(format string) error {
 }
 
 func (e *E5061B) validateWindowLayout(layout string) error {
-	valid := []string{"D1", "D12", "D1_2", "D123", "D1_2_3", "D12_34"}
+	valid := []string{
+		"D1", "D12", "D1_2", "D112", "D1_1_2", "D123", 
+		"D1_2_3", "D12_33", "D11_23", "D13_23", "D12_13",
+		"D1234", "D1_2_3_4", "D12_34",
+	}
 	layoutUpper := strings.ToUpper(layout)
 	if !slices.Contains(valid, layoutUpper) {
 		return fmt.Errorf("window layout must be %s, got %s", strings.Join(valid, ", "), layout)

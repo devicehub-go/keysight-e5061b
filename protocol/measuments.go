@@ -7,6 +7,13 @@ import (
 	"strings"
 )
 
+type ComplexData struct {
+	Real      []float64
+	Imaginary []float64
+	Magnitude []float64
+	Phase     []float64
+}
+
 // Sets the data type for transfers
 func (e *E5061B) SetDataFormat(format string) error {
 	if err := e.validateDataFormat(format); err != nil {
@@ -35,7 +42,7 @@ func (e *E5061B) ByteToFloatArray(payload []byte) ([]float64, error) {
 	numValues := len(payload) / 8
 
 	values := make([]float64, numValues)
-	for i := 0; i < numValues; i++ {
+	for i := range numValues {
 		bits := binary.LittleEndian.Uint64(payload[i*8 : i*8+8])
 		values[i] = math.Float64frombits(bits)
 	}
@@ -65,30 +72,52 @@ func (e *E5061B) GetFormattedData(channel int) ([]float64, error) {
 }
 
 // Fetches raw complex data as a float64 slice
-func (e *E5061B) GetComplexData(channel int) ([]float64, error) {
+func (e *E5061B) GetComplexData(channel int) (ComplexData, error) {
 	if err := e.validateChannel(channel); err != nil {
-		return nil, err
+		return ComplexData{}, err
 	}
 	if err := e.SetDataFormat("REAL"); err != nil {
-		return nil, err
+		return ComplexData{}, err
 	}
 	if err := e.SetByteOrder("SWAP"); err != nil {
-		return nil, err
+		return ComplexData{}, err
 	}
 
 	cmd := fmt.Sprintf(":CALC%d:DATA:SDAT?", channel)
 	payload, err := e.QueryByteSequence(cmd)
 	if err != nil {
-		return nil, err
+		return ComplexData{}, err
+	}
+	values, err := e.ByteToFloatArray(payload)
+	if err != nil {
+		return ComplexData{}, err
 	}
 
-	return e.ByteToFloatArray(payload)
+	numPoints := len(values) / 2
+    output := ComplexData{
+        Real:      make([]float64, numPoints),
+        Imaginary: make([]float64, numPoints),
+        Magnitude: make([]float64, numPoints),
+        Phase:     make([]float64, numPoints),
+    }
+
+    for i := range numPoints {
+        r := values[i*2]
+        im := values[i*2+1]
+
+        output.Real[i] = r
+        output.Imaginary[i] = im
+        output.Magnitude[i] = 20*math.Log10(math.Sqrt(r*r + im*im))
+        output.Phase[i] = math.Atan2(im, r)
+    }
+
+	return output, nil
 }
 
 // Selects a specific trace and returns its complex data
-func (e *E5061B) GetTraceComplexData(channel, trace int) ([]float64, error) {
+func (e *E5061B) GetTraceComplexData(channel, trace int) (ComplexData, error) {
 	if err := e.SelectTrace(channel, trace); err != nil {
-		return nil, err
+		return ComplexData{}, err
 	}
 	return e.GetComplexData(channel)
 }

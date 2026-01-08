@@ -113,7 +113,6 @@ func (v *E5061B) QueryByteSequence(message string) ([]byte, error) {
 	if err != nil {
 		return nil, err
 	}
-	v.Communication.Read(1)
 
 	payload := make([]byte, 0)
 	for len(payload) != int(n) {
@@ -123,5 +122,6 @@ func (v *E5061B) QueryByteSequence(message string) ([]byte, error) {
 		}
 		payload = append(payload, response...)
 	}
+	v.Communication.Read(1)
 	return payload, nil
 }
