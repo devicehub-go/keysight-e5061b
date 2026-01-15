@@ -28,10 +28,10 @@ func TestGetMeasuremnt(t *testing.T) {
 	start := time.Now()
 	vna.SetMarkerSearch(1, 2, 1, "MIN")
 	vna.SetMarkerTrackingState(1, 2, 1, true)
-	position, err := vna.GetMarkerY(1, 4, 1)
+	frequency, phase, err := vna.GetMarkerPosition(1, 4, 1)
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(position)
+	fmt.Println(frequency, phase)
 	fmt.Println(time.Since(start))
 }
