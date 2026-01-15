@@ -6,7 +6,6 @@ import (
 	"time"
 
 	keysighte5061b "github.com/devicehub-go/keysight-e5061b"
-	"github.com/devicehub-go/keysight-e5061b/protocol"
 	"github.com/devicehub-go/unicomm"
 	"github.com/devicehub-go/unicomm/protocol/unicommtcp"
 )
@@ -15,7 +14,7 @@ func TestGetMeasuremnt(t *testing.T) {
 	vna := keysighte5061b.New(unicomm.Options{
 		Protocol: unicomm.TCP,
 		TCP: unicommtcp.TCPOptions{
-			Host:         "10.0.4.138",
+			Host:         "10.0.9.37",
 			Port:         5025,
 			ReadTimeout:  2 * time.Second,
 			WriteTimeout: 2 * time.Second,
@@ -26,28 +25,13 @@ func TestGetMeasuremnt(t *testing.T) {
 	}
 	defer vna.Disconnect()
 
-	vna.Reset()
-	vna.SetTraceToWindow(protocol.TraceOptions{
-		Channel: 1,
-		Trace: 1,
-		Parameter: "S11",
-		Format: "MLOG",
-		CenterFrequency: 476e6,
-		SpanFrequency: 3e6,
-		SweepPoints: 101,
-		Continuos: true,
-		AutoIFBW: false,
-		IFBandwidth: 10e3,
-		AverageState: true,
-		AverageFactor: 5,
-	});
-	fmt.Println(vna.GetFrequencyParameters(1))
-
 	start := time.Now()
-	data, err := vna.GetComplexData(1)
+	vna.SetMarkerSearch(1, 2, 1, "MIN")
+	vna.SetMarkerTrackingState(1, 2, 1, true)
+	valueBytes, err := vna.GetMarkerY(1, 4, 1)
 	if err != nil {
 		panic(err)
 	}
+	fmt.Println(string(valueBytes))
 	fmt.Println(time.Since(start))
-	fmt.Println(data.Frequency)
 }

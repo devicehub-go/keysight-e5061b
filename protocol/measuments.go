@@ -146,6 +146,35 @@ func (e *E5061B) SetMarkerState(channel, trace, marker int, enabled bool) error 
 	return e.Write(cmd)
 }
 
+// Selects the search type for marker
+func (e *E5061B) SetMarkerSearch(channel, trace, marker int, function string) error {
+	if err := e.SelectTrace(channel, trace); err != nil {
+		return err
+	} else if err := e.validateMarkerIndex(marker); err != nil {
+		return err
+	}
+
+	cmd := fmt.Sprintf(":CALC%d:SEL:MARK%d:FUNC:TYPE %s", channel, marker, function)
+	return e.Write(cmd)
+}
+
+// Enables or disbales the search traking for marker
+func (e *E5061B) SetMarkerTrackingState(channel, trace, marker int, enabled bool) error {
+	if err := e.SelectTrace(channel, trace); err != nil {
+		return err
+	} else if err := e.validateMarkerIndex(marker); err != nil {
+		return err
+	}
+
+	state := "0"
+	if enabled {
+		state = "1"
+	}
+
+	cmd := fmt.Sprintf(":CALC%d:SEL:MARK%d:FUNC:TRAC %s", channel, marker, state)
+	return e.Write(cmd)
+}
+
 // Moves the marker to a specific frequency position in Hz
 func (e *E5061B) SetMarkerX(channel, trace, marker int, frequency float64) error {
 	if err := e.SelectTrace(channel, trace); err != nil {
