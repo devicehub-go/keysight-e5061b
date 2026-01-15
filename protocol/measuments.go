@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"fmt"
 	"math"
+	"strconv"
 	"strings"
 )
 
@@ -190,13 +191,22 @@ func (e *E5061B) SetMarkerX(channel, trace, marker int, frequency float64) error
 }
 
 // Queries the measurement data at the marker's current position
-func (e *E5061B) GetMarkerY(channel, trace, marker int) ([]byte, error) {
+func (e *E5061B) GetMarkerY(channel, trace, marker int) (float64, error) {
 	if err := e.SelectTrace(channel, trace); err != nil {
-		return nil, err
+		return 0, err
 	} else if err := e.validateMarkerIndex(marker); err != nil {
-		return nil, err
+		return 0, err
 	}
 
 	cmd := fmt.Sprintf(":CALC%d:MARK%d:Y?", channel, marker)
-	return e.Query(cmd)
+	response, err := e.Query(cmd)
+	if err != nil {
+		return 0, err
+	}
+
+	parts := strings.Split(string(response), ",")
+    if len(parts) == 0 {
+        return 0, fmt.Errorf("unexpected response: %s", response)
+    }
+    return strconv.ParseFloat(strings.TrimSpace(parts[0]), 64)
 }
